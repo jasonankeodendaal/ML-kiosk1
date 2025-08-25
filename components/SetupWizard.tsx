@@ -103,10 +103,15 @@ const SetupWizard: React.FC = () => {
         completeSetup();
     };
 
-    const handleSkipToLogin = () => {
+    const handleSkipToAdminLogin = () => {
         completeSetup();
         navigate('/login');
     };
+    
+    const handleSkipToKioskLogin = () => {
+        completeSetup();
+    };
+
 
     const renderStepContent = () => {
         switch (step) {
@@ -147,9 +152,12 @@ const SetupWizard: React.FC = () => {
                                 Need help? View setup instructions
                             </button>
                         </div>
-                        <div className="text-center mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                            <button type="button" onClick={handleSkipToLogin} className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:underline">
-                                Skip for now &amp; go to Admin Login &rarr;
+                        <div className="text-center mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-center gap-x-6">
+                            <button type="button" onClick={handleSkipToKioskLogin} className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:underline">
+                                Go to Kiosk Login &rarr;
+                            </button>
+                             <button type="button" onClick={handleSkipToAdminLogin} className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:underline">
+                                Go to Admin Login &rarr;
                             </button>
                         </div>
                     </MotionDiv>

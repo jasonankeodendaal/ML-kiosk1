@@ -4,7 +4,7 @@ import { useAppContext } from './context/AppContext.tsx';
 import LocalMedia from './LocalMedia';
 
 
-const CatalogueCarousel: React.FC<{ title: string; items: Catalogue[]; onOpen: (catalogue: Catalogue) => void; isExpired?: boolean; }> = ({ title, items, onOpen, isExpired = false }) => {
+const CatalogueCarousel: React.FC<{ title: string; items: Catalogue[]; onOpen: (catalogue: Catalogue) => void; isExpired?: boolean; }> = React.memo(({ title, items, onOpen, isExpired = false }) => {
     const { settings } = useAppContext();
     if (items.length === 0) {
         return null;
@@ -48,7 +48,7 @@ const CatalogueCarousel: React.FC<{ title: string; items: Catalogue[]; onOpen: (
             </swiper-container>
         </div>
     );
-};
+});
 
 
 interface BrandCatalogueCarouselProps {

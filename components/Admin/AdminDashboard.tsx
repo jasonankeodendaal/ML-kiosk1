@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import AdminSettings from './AdminSettings.tsx';
@@ -18,70 +19,7 @@ import LocalMedia from '../LocalMedia.tsx';
 
 export type AdminSection = 'brands' | 'content' | 'kiosk' | 'settings' | 'storage' | 'users' | 'trash' | 'pdfConverter' | 'analytics' | 'client-orders';
 
-const AdminDashboard: React.FC = () => {
-    const [activeSection, setActiveSection] = useState<AdminSection>('brands');
-    const [activeBulkImportTab, setActiveBulkImportTab] = useState<'csv' | 'zip'>('csv');
-    const [activeContentTab, setActiveContentTab] = useState<'catalogues' | 'pamphlets'>('catalogues');
-    const [activeKioskTab, setActiveKioskTab] = useState<'screensaver' | 'tv'>('screensaver');
-
-    const { loggedInUser } = useAppContext();
-    const perms = loggedInUser?.permissions;
-    const canManageBrands = !!(loggedInUser?.isMainAdmin || perms?.canManageBrandsAndProducts);
-
-    const renderContent = () => {
-        switch (activeSection) {
-            case 'brands': return <AdminBrandContent canManageBrands={canManageBrands} activeBulkImportTab={activeBulkImportTab} setActiveBulkImportTab={setActiveBulkImportTab} />;
-            case 'content': 
-                return (
-                    <div>
-                        <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
-                            <nav className="-mb-px flex space-x-6" aria-label="Tabs">
-                                <button onClick={() => setActiveContentTab('catalogues')} className={`whitespace-nowrap pb-3 px-1 border-b-2 font-medium text-sm ${activeContentTab === 'catalogues' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>Catalogues</button>
-                                <button onClick={() => setActiveContentTab('pamphlets')} className={`whitespace-nowrap pb-3 px-1 border-b-2 font-medium text-sm ${activeContentTab === 'pamphlets' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>Pamphlets</button>
-                            </nav>
-                        </div>
-                        {activeContentTab === 'catalogues' && <AdminCatalogueContent />}
-                        {activeContentTab === 'pamphlets' && <AdminPamphletContent />}
-                    </div>
-                );
-            case 'kiosk':
-                 return (
-                    <div>
-                        <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
-                            <nav className="-mb-px flex space-x-6" aria-label="Tabs">
-                                <button onClick={() => setActiveKioskTab('screensaver')} className={`whitespace-nowrap pb-3 px-1 border-b-2 font-medium text-sm ${activeKioskTab === 'screensaver' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>Screensaver Ads</button>
-                                <button onClick={() => setActiveKioskTab('tv')} className={`whitespace-nowrap pb-3 px-1 border-b-2 font-medium text-sm ${activeKioskTab === 'tv' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>TV Content</button>
-                            </nav>
-                        </div>
-                        {activeKioskTab === 'screensaver' && <AdminScreensaverAds />}
-                        {activeKioskTab === 'tv' && <AdminTvContent />}
-                    </div>
-                );
-            case 'client-orders': return <ClientsView />;
-            case 'analytics': return <AdminAnalytics />;
-            case 'pdfConverter': return <AdminPdfConverter />;
-            case 'settings': return <AdminSettings />;
-            case 'storage': return <AdminStorage />;
-            case 'users': return <AdminUserManagement />;
-            case 'trash': return <AdminTrash />;
-            default: return null;
-        }
-    }
-
-    return (
-        <div className="relative h-full flex flex-col">
-            <AdminHeader />
-            <main className="flex-1 overflow-y-auto min-h-0 px-4 sm:px-6 pt-[90px] sm:pt-[100px] pb-[120px] sm:pb-[140px]">
-                <div className="bg-white/90 dark:bg-gray-800/70 backdrop-blur-xl p-6 rounded-2xl shadow-xl border dark:border-gray-700/50">
-                    {renderContent()}
-                </div>
-            </main>
-            <AdminFooter activeSection={activeSection} setActiveSection={setActiveSection} />
-        </div>
-    );
-};
-
-// Sub-components for cleaner rendering logic
+// --- HELPER COMPONENTS & FUNCTIONS (Re-integrated from previous version) ---
 
 const getStatus = (item: Catalogue | Pamphlet) => {
     const today = new Date();
@@ -299,6 +237,88 @@ const AdminTvContent: React.FC = () => {
              )}
         </div>
     )
+};
+
+
+// --- MAIN COMPONENT ---
+
+const AdminDashboard: React.FC = () => {
+    const [activeSection, setActiveSection] = useState<AdminSection>('brands');
+    const [activeBulkImportTab, setActiveBulkImportTab] = useState<'csv' | 'zip'>('csv');
+    const [activeContentTab, setActiveContentTab] = useState<'catalogues' | 'pamphlets'>('catalogues');
+    const [activeKioskTab, setActiveKioskTab] = useState<'screensaver' | 'tv'>('screensaver');
+
+    const { loggedInUser } = useAppContext();
+    const perms = loggedInUser?.permissions;
+    const canManageBrands = !!(loggedInUser?.isMainAdmin || perms?.canManageBrandsAndProducts);
+
+    const renderContent = () => {
+        switch (activeSection) {
+            case 'brands': return <AdminBrandContent canManageBrands={canManageBrands} activeBulkImportTab={activeBulkImportTab} setActiveBulkImportTab={setActiveBulkImportTab} />;
+            case 'content': 
+                if (!(loggedInUser?.isMainAdmin || perms?.canManageCatalogues || perms?.canManagePamphlets)) return null;
+                return (
+                    <div>
+                        <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
+                            <nav className="-mb-px flex space-x-6" aria-label="Tabs">
+                                { (loggedInUser?.isMainAdmin || perms?.canManageCatalogues) && <button onClick={() => setActiveContentTab('catalogues')} className={`whitespace-nowrap pb-3 px-1 border-b-2 font-medium text-sm ${activeContentTab === 'catalogues' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>Catalogues</button> }
+                                { (loggedInUser?.isMainAdmin || perms?.canManagePamphlets) && <button onClick={() => setActiveContentTab('pamphlets')} className={`whitespace-nowrap pb-3 px-1 border-b-2 font-medium text-sm ${activeContentTab === 'pamphlets' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>Pamphlets</button> }
+                            </nav>
+                        </div>
+                        {activeContentTab === 'catalogues' && <AdminCatalogueContent />}
+                        {activeContentTab === 'pamphlets' && <AdminPamphletContent />}
+                    </div>
+                );
+            case 'kiosk':
+                 if (!(loggedInUser?.isMainAdmin || perms?.canManageScreensaver || perms?.canManageTvContent)) return null;
+                 return (
+                    <div>
+                        <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
+                            <nav className="-mb-px flex space-x-6" aria-label="Tabs">
+                                { (loggedInUser?.isMainAdmin || perms?.canManageScreensaver) && <button onClick={() => setActiveKioskTab('screensaver')} className={`whitespace-nowrap pb-3 px-1 border-b-2 font-medium text-sm ${activeKioskTab === 'screensaver' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>Screensaver Ads</button> }
+                                { (loggedInUser?.isMainAdmin || perms?.canManageTvContent) && <button onClick={() => setActiveKioskTab('tv')} className={`whitespace-nowrap pb-3 px-1 border-b-2 font-medium text-sm ${activeKioskTab === 'tv' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>TV Content</button> }
+                            </nav>
+                        </div>
+                        {activeKioskTab === 'screensaver' && <AdminScreensaverAds />}
+                        {activeKioskTab === 'tv' && <AdminTvContent />}
+                    </div>
+                );
+            case 'client-orders':
+                if (!(loggedInUser?.isMainAdmin || perms?.canManageClientOrders)) return null;
+                return <ClientsView />;
+            case 'analytics':
+                if (!(loggedInUser?.isMainAdmin || perms?.canViewAnalytics)) return null;
+                return <AdminAnalytics />;
+            case 'pdfConverter':
+                if (!(loggedInUser?.isMainAdmin || perms?.canManageSystem)) return null;
+                return <AdminPdfConverter />;
+            case 'settings':
+                if (!(loggedInUser?.isMainAdmin || perms?.canManageSettings)) return null;
+                return <AdminSettings />;
+            case 'storage':
+                if (!(loggedInUser?.isMainAdmin || perms?.canManageSystem)) return null;
+                return <AdminStorage />;
+            case 'users':
+                if (!(loggedInUser?.isMainAdmin)) return null;
+                return <AdminUserManagement />;
+            case 'trash':
+                if (!(loggedInUser?.isMainAdmin || perms?.canManageSystem)) return null;
+                return <AdminTrash />;
+            default: return null;
+        }
+    }
+
+    return (
+        <div className="relative h-full flex flex-col">
+            <AdminHeader />
+            <main className="flex-1 overflow-y-auto min-h-0 px-4 sm:px-6 pt-[90px] sm:pt-[100px] pb-[120px] sm:pb-[140px]">
+                <div className="bg-white/90 dark:bg-gray-800/70 backdrop-blur-xl p-6 rounded-2xl shadow-xl border dark:border-gray-700/50">
+                    {renderContent()}
+                </div>
+            </main>
+            <AdminFooter activeSection={activeSection} setActiveSection={setActiveSection} />
+        </div>
+    );
 };
 
 export default AdminDashboard;

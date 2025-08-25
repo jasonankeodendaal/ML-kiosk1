@@ -16,7 +16,7 @@ const Header: React.FC = () => {
   const volumeControlTimeout = useRef<number | null>(null);
   
   const navigate = useNavigate();
-  const { settings, localVolume, setLocalVolume, theme, toggleTheme, loggedInUser, logout } = useAppContext();
+  const { settings, localVolume, setLocalVolume, theme, toggleTheme, loggedInUser, logout, currentKioskUser, logoutKioskUser } = useAppContext();
 
   useEffect(() => {
     if (localVolume > 0) {
@@ -130,6 +130,22 @@ const Header: React.FC = () => {
                <LocalMedia src={settings.logoUrl} type="image" alt="Company Logo" className="h-16 w-auto object-contain transition-transform group-hover:scale-105" />
             </Link>
             <div className="flex items-center gap-2 sm:gap-4">
+              {currentKioskUser && !loggedInUser && (
+                  <>
+                      <div className="text-sm text-right">
+                          <span className="font-medium">Welcome,</span>
+                          <span className="block font-bold text-base -mt-1">{currentKioskUser.name}</span>
+                      </div>
+                      <button
+                          onClick={logoutKioskUser}
+                          className="btn bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 border border-transparent hover:bg-red-200 dark:hover:bg-red-900/80 !px-3"
+                          title="Logout"
+                      >
+                          <ArrowRightOnRectangleIcon className="h-5 w-5" />
+                      </button>
+                      <div className="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
+                  </>
+              )}
               {loggedInUser ? (
                   <>
                       <Link to="/admin" className="btn bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-transparent hover:bg-indigo-200 dark:hover:bg-indigo-900/80 !px-3" title="Admin Dashboard">

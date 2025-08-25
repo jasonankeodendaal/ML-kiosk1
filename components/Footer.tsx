@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { useAppContext } from './context/AppContext';
 
 const Footer: React.FC = () => {
-  const { settings, currentKioskUser } = useAppContext();
+  const { settings, currentKioskUser, reInitiateSetup } = useAppContext();
   const footerSettings = settings.footer;
 
   const footerStyle: React.CSSProperties = {
@@ -41,7 +41,11 @@ const Footer: React.FC = () => {
                 &copy; {new Date().getFullYear()}. All rights reserved.
             </p>
             <div className="mt-2 text-center sm:mt-0 sm:text-right">
-                {/* Admin login link removed as per user request */}
+                {currentKioskUser && (
+                    <button onClick={reInitiateSetup} className="text-sm text-gray-500 dark:text-gray-400 hover:underline">
+                        System Setup
+                    </button>
+                )}
             </div>
         </div>
       </div>

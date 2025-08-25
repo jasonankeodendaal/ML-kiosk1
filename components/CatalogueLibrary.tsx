@@ -5,7 +5,7 @@ import { ChevronLeftIcon } from './Icons.tsx';
 import type { Catalogue } from '../types.ts';
 import LocalMedia from './LocalMedia.tsx';
 
-const CatalogueCard: React.FC<{ catalogue: Catalogue; onOpen: (catalogue: Catalogue) => void; }> = ({ catalogue, onOpen }) => {
+const CatalogueCard: React.FC<{ catalogue: Catalogue; onOpen: (catalogue: Catalogue) => void; }> = React.memo(({ catalogue, onOpen }) => {
     const { settings } = useAppContext();
 
     return (
@@ -27,7 +27,7 @@ const CatalogueCard: React.FC<{ catalogue: Catalogue; onOpen: (catalogue: Catalo
             </div>
         </button>
     );
-};
+});
 
 
 const CatalogueLibrary: React.FC = () => {
